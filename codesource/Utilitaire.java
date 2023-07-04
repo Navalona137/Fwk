@@ -2,6 +2,7 @@ package etu1884.obj;
 
 import etu1884.framework.Mapping;
 import etu1884.annotation.*;
+import etu1884.obj.*;
 
 import java.util.ArrayList;
 import java.io.File;
@@ -16,7 +17,8 @@ public class Utilitaire {
     }
     
     public String getLastOfPath(String path, String context){
-        String[] words = path.split(context);
+        String contxt = context+"/";
+        String[] words = path.split(contxt);
         String[] lastpath = new String[words.length];
         String last = new String();
         String result = new String();
@@ -105,15 +107,54 @@ public class Utilitaire {
             }            
         }
         return allMapping;
+    }
+
+    public static ArrayList<String> allUrl(String path)throws Exception{
+        ArrayList<String> allUrls = new ArrayList<String>();
+        ArrayList<String> allPackage = allPackage(path);
+        for(int i=0; i<allPackage.size(); i++){
+            String m = allPackage.get(i);
+            ArrayList<String> allClass = allClass(path, m);
+            for(int j=0; j<allClass.size(); j++){
+                String s = m+"."+allClass.get(j).split(".class")[0];
+                Class<?> trueClasse = Class.forName(s);
+                if(trueClasse.getAnnotation(ClassAnnotation.class)!=null){
+                    String name = trueClasse.getName();
+                    Method[] allMethodeInClass = trueClasse.getDeclaredMethods();
+                    for (int k=0; k<allMethodeInClass.length; k++) {
+                        if(allMethodeInClass[k].getAnnotation(MyAnnotation.class)!=null){
+                            String url = allMethodeInClass[k].getAnnotation(MyAnnotation.class).value();
+                            allUrls.add(url);
+                        }
+                    }
+                }    
+            }            
+        }
+        return allUrls;
     }    
 
-    public static HashMap<String, Mapping> getUrls(ArrayList<Mapping> allMapping){
+    public static HashMap<String, Mapping> getUrls(ArrayList<Mapping> allMapping, ArrayList<String> allUrl){
         HashMap<String, Mapping> allUrls = new HashMap<String, Mapping>();
         for(int i=0; i<allMapping.size(); i++){
             Mapping m = allMapping.get(i);
-            String url="url"+i;
+            String url= allUrl.get(i);
             allUrls.put(url, m);
         }
         return allUrls;
     }    
+
+    public static Mapping getMapping(String annotation,HashMap<String,Mapping> hashmap) throws Exception{
+       Mapping mapping=hashmap.get(annotation);
+       if(mapping==null)
+           throw new Exception("tsy hita");
+       return mapping;
+   }
+   
+    public static ModelView invocationMethode(String annotation,HashMap<String,Mapping> hashmap) throws Exception{
+       Mapping mapping=getMapping(annotation,hashmap);
+       Class<?> classe=Class.forName(mapping.getClassName());
+       Method methode=classe.getMethod(mapping.getMethod());
+       ModelView resultat=(ModelView)methode.invoke(classe.newInstance());
+      return resultat;
+   }
 }
