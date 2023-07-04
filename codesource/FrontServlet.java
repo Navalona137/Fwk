@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import etu1884.obj.Utilitaire;
 
 public class FrontServlet extends HttpServlet {
+    HashMap<String, Mapping> mappingUrls;
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException{
         response.setContentType("text/html;charset=UTF-8");
@@ -22,7 +24,7 @@ public class FrontServlet extends HttpServlet {
         Utilitaire u = new Utilitaire();
         String wordsPath = u.getLastOfPath(String.valueOf(request.getRequestURL()), request.getContextPath());
         out.println(wordsPath+"<br>");
-        
+            
     }
 
     @Override
