@@ -1,4 +1,4 @@
--package etu1884.framework.servlet;
+package etu1884.framework.servlet;
 
 import etu1884.framework.Mapping;
 import etu1884.obj.*;
@@ -48,6 +48,10 @@ public class FrontServlet extends HttpServlet {
             Method function = classInstance.getMethod(mapping.getMethod());
             ModelView invomethode = (ModelView) function.invoke(classInstance.newInstance());
             out.println("methode: /"+ invomethode.getView());
+
+            for(HashMap.Entry<String, Object> entry : invomethode.getData().entrySet()) {
+                request.setAttribute(entry.getKey(), entry.getValue());
+            }
             RequestDispatcher dispat = request.getRequestDispatcher("./"+ invomethode.getView());
             dispat.forward(request, response);    
         }catch(Exception e){

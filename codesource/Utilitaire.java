@@ -150,11 +150,4 @@ public class Utilitaire {
        return mapping;
    }
    
-    public static ModelView invocationMethode(String annotation,HashMap<String,Mapping> hashmap) throws Exception{
-       Mapping mapping=getMapping(annotation,hashmap);
-       Class<?> classe=Class.forName(mapping.getClassName());
-       Method methode=classe.getMethod(mapping.getMethod());
-       ModelView resultat=(ModelView)methode.invoke(classe.newInstance());
-      return resultat;
-   }
 }

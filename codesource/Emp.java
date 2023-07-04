@@ -15,6 +15,20 @@ public class Emp {
 	}
     public Emp(){}
 
+    public String getNom() {
+        return nom;
+    }
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
     @MyAnnotation(value = "emp-findAll")
     public void findAll(){
         System.out.println("findAll");
@@ -38,7 +52,7 @@ public class Emp {
     public ModelView getView(){
     	ModelView view = new ModelView();
     	view.setView("hello.jsp");
-    	//view.addItem("list", this.listEmp());
+    	view.addItem("list", this.listEmp());
     	return view;
     }
 }
