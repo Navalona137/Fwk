@@ -45,5 +45,75 @@ public class Utilitaire {
         }
         return result;
     }
-        
+    
+    
+    public static ArrayList<String> allPackage(String paths) throws Exception{
+        ArrayList<String> allPack = new ArrayList<String>();
+        String p = "\\WEB-INF\\classes\\";   
+        File path = new File(paths+p);
+        File[] contenus = path.listFiles();
+        if(contenus == null){
+            throw new Exception("Dossier vide ou inexistant");
+        }
+        for(int i=0; i<contenus.length; i++){
+            String res = contenus[i].getName();
+            if(!res.contains("."))
+                allPack.add(res);
+        }
+        return allPack;
+    }
+
+    public static ArrayList<String> allClass(String p, String paths) throws Exception{
+        ArrayList<String> allClass = new ArrayList<String>();
+        String pa = "\\WEB-INF\\classes\\";
+        String pathName = p+pa+paths;
+        File path = new File(pathName);
+        File[] contenus = path.listFiles();
+        if(contenus == null){
+            throw new Exception("Package vide ou inexistant");
+        }
+        for(int i=0; i<contenus.length; i++){
+            String res = contenus[i].getName();
+            if(res.contains("."))
+                allClass.add(res);
+        }
+        return allClass;    
+    }
+
+    public static ArrayList<Mapping> allMapping(String path)throws Exception{
+        ArrayList<Mapping> allMapping = new ArrayList<Mapping>();
+        ArrayList<String> allPackage = allPackage(path);
+        for(int i=0; i<allPackage.size(); i++){
+            String m = allPackage.get(i);
+            ArrayList<String> allClass = allClass(path, m);
+            for(int j=0; j<allClass.size(); j++){
+                String s = m+"."+allClass.get(j).split(".class")[0];
+                Class<?> trueClasse = Class.forName(s);
+                if(trueClasse.getAnnotation(ClassAnnotation.class)!=null){
+                    String name = trueClasse.getName();
+                    Method[] allMethodeInClass = trueClasse.getDeclaredMethods();
+                    for (int k=0; k<allMethodeInClass.length; k++) {
+                        if(allMethodeInClass[k].getAnnotation(MyAnnotation.class)!=null){
+                            String met = allMethodeInClass[k].getName();
+                            Mapping mapping = new Mapping(null, null); 
+                            mapping.setClassName(s);
+                            mapping.setMethod(met);
+                            allMapping.add(mapping);
+                        }
+                    }
+                }    
+            }            
+        }
+        return allMapping;
+    }    
+
+    public static HashMap<String, Mapping> getUrls(ArrayList<Mapping> allMapping){
+        HashMap<String, Mapping> allUrls = new HashMap<String, Mapping>();
+        for(int i=0; i<allMapping.size(); i++){
+            Mapping m = allMapping.get(i);
+            String url="url"+i;
+            allUrls.put(url, m);
+        }
+        return allUrls;
+    }    
 }
