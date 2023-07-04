@@ -8,10 +8,12 @@ import etu1884.obj.*;
 public class Emp {
 	String nom;
 	String prenom;
+    int age;
 
-	public Emp(String nom, String prenom){
+	public Emp(String nom, String prenom, int age){
 		this.nom = nom;
 		this.prenom = prenom;
+        this.age = age;
 	}
     public Emp(){}
 
@@ -21,12 +23,18 @@ public class Emp {
     public String getPrenom() {
         return prenom;
     }
+    public int getAge() {
+        return age;
+    }
 
-    public void setNom(String nom) {
+    public void setnom(String nom) {
         this.nom = nom;
     }
-    public void setPrenom(String prenom) {
+    public void setprenom(String prenom) {
         this.prenom = prenom;
+    }
+    public void setage(int age) {
+        this.age = age;
     }
 
     @MyAnnotation(value = "emp-findAll")
@@ -36,13 +44,15 @@ public class Emp {
     
     @MyAnnotation(value = "emp-add")
     public void add(){
+        System.out.println(this.getNom());
+        System.out.println(this.getAge());
         System.out.println("add");
     }
 
     public ArrayList<Emp> listEmp() {
         ArrayList<Emp> list = new ArrayList<Emp>();
-        Emp e1 = new Emp("RASOLOMANANA", "Celine");
-        Emp e2 = new Emp("ANDRIAMALALA", "Fitia");
+        Emp e1 = new Emp("RASOLOMANANA", "Celine", 20);
+        Emp e2 = new Emp("ANDRIAMALALA", "Fitia", 21);
         list.add(e1);
         list.add(e2);
         return list;
