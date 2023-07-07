@@ -2,20 +2,18 @@ package model;
 
 import etu1884.annotation.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import etu1884.obj.*;
 
 @ClassAnnotation
 public class Emp {
     int id;
 	String nom;
-	String prenom;
-    int age;
-
-	public Emp(int id, String nom, String prenom, int age){
+    FileUpload file;
+	
+	public Emp(int id, String nom){
 		this.id = id;
         this.nom = nom;
-		this.prenom = prenom;
-        this.age = age;
 	}
     public Emp(){}
 
@@ -25,26 +23,20 @@ public class Emp {
     public String getNom() {
         return nom;
     }
-    public String getPrenom() {
-        return prenom;
+    public FileUpload getFile(){
+        return this.file;
     }
-    public int getAge() {
-        return age;
-    }
-
+    
     public void setid(int id) {
         this.id = id;
     }
     public void setnom(String nom) {
         this.nom = nom;
     }
-    public void setprenom(String prenom) {
-        this.prenom = prenom;
+    public void setfile(FileUpload file){
+        this.file=file;
     }
-    public void setage(int age) {
-        this.age = age;
-    }
-
+    
     @MyAnnotation(value = "emp-findAll")
     public ModelView findAll(int id){
         System.out.println("findAll");
@@ -59,14 +51,12 @@ public class Emp {
         System.out.println("add");
         System.out.println("Id "+this.getId());
         System.out.println("Nom "+this.getNom());
-        System.out.println("Prenom "+this.getPrenom());
-        System.out.println("Age "+this.getAge());
     }
 
     public ArrayList<Emp> listEmp() {
         ArrayList<Emp> list = new ArrayList<Emp>();
-        Emp e1 = new Emp(0, "RASOLOMANANA", "Celine", 20);
-        Emp e2 = new Emp(1, "ANDRIAMALALA", "Fitia", 21);
+        Emp e1 = new Emp(0, "RAKOTO");
+        Emp e2 = new Emp(1, "ANDRIAMALALA");
         list.add(e1);
         list.add(e2);
         return list;
@@ -78,5 +68,12 @@ public class Emp {
     	view.setView("hello.jsp");
     	view.addItem("list", this.listEmp());
     	return view;
+    }
+
+    @MyAnnotation(value = "emp-save")
+    public ModelView save(){
+        ModelView view=new ModelView("AffichageEmp.jsp");
+        view.addItem("attribut",this.getFile().getName());
+        return view;
     }
 }
