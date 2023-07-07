@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
+import java.text.*;
 import java.lang.reflect.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -27,6 +28,15 @@ public class FrontServlet extends HttpServlet {
             e.printStackTrace();
         }
 
+    }
+
+    public Object[] getParameterValues(HttpServletRequest request, Parameter[] args) {
+        Object[] valueArgs = new Object[args.length];
+
+        for (int i=0; i<args.length; i++) {
+            valueArgs[i] = Utilitaire.castToAppropriateClass(request.getParameter(args[i].getName()), args[i].getType());
+        }
+        return valueArgs;
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -54,37 +64,45 @@ public class FrontServlet extends HttpServlet {
                 out.println("</tr>");
             }
             out.println("</table>");
-            out.println("<br>");
             
             Mapping mapping=Utilitaire.getMapping(wordsPath, mappingUrls);
             Class<?> classInstance = Class.forName(mapping.getClassName());
-            
             Object newObjet = classInstance.newInstance();
             Field[] attributs = newObjet.getClass().getDeclaredFields();
             for(int i=0; i<attributs.length; i++){
                 String valeur = request.getParameter(attributs[i].getName());
                 if(valeur!=null){
-                    out.println(valeur+"<br>");
                     if(attributs[i].getType().getSimpleName().equals("int")){
                         int value = Integer.valueOf(valeur);
                         attributs[i].setAccessible(true);
-                        attributs[i].set(newObjet, /*attributs[i].getType().cast(*/value/*)*/);
-                        out.println("miditra tsara ilay donnees"+"<br>");    
+                        attributs[i].set(newObjet, value);    
                     }else{
                         attributs[i].setAccessible(true);
-                        attributs[i].set(newObjet, /*attributs[i].getType().cast(*/valeur/*)*/);
-                        out.println("miditra tsara ilay donnees"+"<br>");
+                        attributs[i].set(newObjet, valeur);
                     }
                 }
             }
+
+            Method[] methods = classInstance.getDeclaredMethods();
+            Class<?>[] functionParameters = null;
+            for (Method method : methods) {
+                if(method.getName() == mapping.getMethod()) {
+                    functionParameters = method.getParameterTypes();
+                }
+            }
             
-            Method function = classInstance.getMethod(mapping.getMethod());
-            ModelView invomethode = (ModelView) function.invoke(newObjet);  
-            for(HashMap.Entry<String, Object> entry : invomethode.getData().entrySet()) {
+            Method function = newObjet.getClass().getMethod(mapping.getMethod(), functionParameters);
+            Parameter[] args = function.getParameters();
+            Object[] valueArgs = getParameterValues(request, args);
+            out.println("Taille "+ args.length);
+
+            ModelView view = (ModelView) function.invoke(newObjet, valueArgs);
+            for(HashMap.Entry<String, Object> entry : view.getData().entrySet()) {
                 request.setAttribute(entry.getKey(), entry.getValue());
             }
-            RequestDispatcher dispat = request.getRequestDispatcher("./"+ invomethode.getView());
-            dispat.forward(request, response);    
+            out.println("tonga ve");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("./"+ view.getView());
+            dispatcher.forward(request, response);    
         }catch(Exception e){
             e.printStackTrace();
         }

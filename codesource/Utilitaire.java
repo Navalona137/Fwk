@@ -6,6 +6,7 @@ import etu1884.obj.*;
 
 import java.util.ArrayList;
 import java.io.File;
+import java.text.*;
 import java.lang.reflect.Method;
 import java.lang.Class;
 import java.lang.*;
@@ -148,6 +149,23 @@ public class Utilitaire {
        if(mapping==null)
            throw new Exception("tsy hita");
        return mapping;
-   }
+    }
+
+    public static Object castToAppropriateClass(String valueInst, Class<?> classInst) {
+        System.out.println("ClassType: " + classInst.getSimpleName());
+        try {
+            if(classInst.getSimpleName() == "int" || classInst.getSimpleName() == "Integer") {
+                return Integer.parseInt(valueInst); // try to parse the valueInst as an integer
+            } else if(classInst.getSimpleName() == "double" || classInst.getSimpleName() == "Double") {
+                return Double.parseDouble(valueInst); // try to parse the valueInst as a double
+            } else if(classInst.getSimpleName() == "Date") { 
+                return new SimpleDateFormat("yyyy-MM-dd").parse(valueInst); // try to parse the valueInst as a date
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return valueInst; // return the value as a string
+    }
    
 }
