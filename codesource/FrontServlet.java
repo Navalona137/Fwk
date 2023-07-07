@@ -9,13 +9,19 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.text.*;
 import java.lang.reflect.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import javax.servlet.http.Part;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import etu1884.obj.Utilitaire;
-
 
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
@@ -71,16 +77,30 @@ public class FrontServlet extends HttpServlet {
             Field[] attributs = newObjet.getClass().getDeclaredFields();
             for(int i=0; i<attributs.length; i++){
                 String valeur = request.getParameter(attributs[i].getName());
-                if(valeur!=null){
-                    if(attributs[i].getType().getSimpleName().equals("int")){
-                        int value = Integer.valueOf(valeur);
-                        attributs[i].setAccessible(true);
-                        attributs[i].set(newObjet, value);    
-                    }else{
-                        attributs[i].setAccessible(true);
-                        attributs[i].set(newObjet, valeur);
+                if(attributs[i].getType().getSimpleName().equals("FileUpload")==false){
+                    if(valeur!=null){
+                        if(attributs[i].getType().getSimpleName().equals("int")){
+                            int value = Integer.valueOf(valeur);
+                            attributs[i].setAccessible(true);
+                            attributs[i].set(newObjet, value);    
+                        }else{
+                            attributs[i].setAccessible(true);
+                            attributs[i].set(newObjet, valeur);
+                        }
+                    }
+                }else{
+                    try{
+                        Part part=request.getPart(attributs[i].getName());
+                        byte[] b=new byte[1024];
+                        DataInputStream dis=new DataInputStream(part.getInputStream());
+                        dis.readFully(b);
+                        dis.close();        
+                        attributs[i].set(newObjet, new FileUpload(part.getSubmittedFileName(), b));
+                    }catch(Exception e){
+                        e.printStackTrace();
                     }
                 }
+                
             }
 
             Method[] methods = classInstance.getDeclaredMethods();
@@ -97,12 +117,14 @@ public class FrontServlet extends HttpServlet {
             out.println("Taille "+ args.length);
 
             ModelView view = (ModelView) function.invoke(newObjet, valueArgs);
+            out.println("tonga view");
             for(HashMap.Entry<String, Object> entry : view.getData().entrySet()) {
                 request.setAttribute(entry.getKey(), entry.getValue());
             }
-            out.println("tonga ve");
+            out.println("tonga ve1");
             RequestDispatcher dispatcher = request.getRequestDispatcher("./"+ view.getView());
-            dispatcher.forward(request, response);    
+            dispatcher.forward(request, response);
+
         }catch(Exception e){
             e.printStackTrace();
         }
